@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ល្បែងសិក្សាតក្កវិទ្យា - ឈ្នាប់ "និង"</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #8e44ad;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --bg: #f5f6fa;
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            max-width: 650px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 { color: var(--primary); margin-bottom: 5px; font-size: 1.8rem; }
+        .rule-box {
+            background: #f0e6ff;
+            color: #6c2b93;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--accent);
+            text-align: left;
+        }
+
+        .score-board { 
+            font-size: 1.1rem; 
+            margin-bottom: 20px; 
+            font-weight: bold;
+            color: #555;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 2px solid #ddd;
+            padding: 30px 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            line-height: 1.8;
+            font-weight: bold;
+        }
+
+        .hint-text {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-top: 15px;
+            background: #f9f9f9;
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px dashed #ccc;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            font-family: 'Kantumruy Pro', sans-serif;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-true { background-color: var(--success); box-shadow: 0 4px 0 #1e7e46; }
+        .btn-false { background-color: var(--danger); box-shadow: 0 4px 0 #8e281e; }
+
+        button:hover { transform: translateY(-2px); opacity: 0.95; }
+        button:active { transform: translateY(2px); box-shadow: none; }
+
+        #feedback {
+            margin-top: 25px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            min-height: 50px;
+            line-height: 1.6;
+        }
+
+        .hidden { display: none; }
+
+        .final-screen {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="gameBox">
+    <h1>ល្បែងសិក្សា៖ ឈ្នាប់ "និង" (&and;)</h1>
+    
+    <div class="rule-box">
+        💡 <strong>ចងចាំច្បាប់៖</strong> សំណើផ្សំភ្ជាប់ដោយឈ្នាប់ <strong>"និង"</strong> គឺ <span style="color:var(--success);font-weight:bold;">ពិត</span> តែករណីដែលសំណើផ្សំទាំងសងខាង <span style="color:var(--success);font-weight:bold;">ពិតព្រមគ្នា</span> ប៉ុណ្ណោះ។
+    </div>
+
+    <div class="score-board">ពិន្ទុបច្ចុប្បន្ន: <span id="score">0</span> | សំណួរទី: <span id="qCount">1</span>/10</div>
+    
+    <div id="game-content">
+        <div class="question-card">
+            <div class="question-text" id="questionText">សំណួរកំពុងដំណើរការ...</div>
+            <div class="hint-text" id="hintText">តម្រុយ៖ ពិនិត្យសំណើឆ្វេង និងស្តាំ</div>
+        </div>
+
+        <div class="options-grid">
+            <button class="btn-true" onclick="checkAnswer('ពិត')">ពិត (True)</button>
+            <button class="btn-false" onclick="checkAnswer('មិនពិត')">មិនពិត (False)</button>
+        </div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="resultArea" class="hidden final-screen">
+        <h2>🎉 អបអរសាទរ! អ្នកបានឆ្លងកាត់ការសាកល្បង។</h2>
+        <p style="font-size: 1.6rem; margin: 20px 0;">ពិន្ទុដែលទទួលបានសរុប: <span id="finalScore" style="color:var(--accent); font-weight:bold;">0</span>/10</p>
+        <button onclick="location.reload()" style="background: var(--accent); padding: 12px 40px; box-shadow: 0 4px 0 #6d3185;">លេងម្តងទៀត</button>
+    </div>
+</div>
+
+<script>
+    // អាងសំណួរចម្រុះអំពីឈ្នាប់ "និង"
+    const questions = [
+        { 
+            q: "« ភ្នំពេញជារាជធានីនៃកម្ពុជា » និង « ព្រះអាទិត្យរះនៅទិសខាងកើត »", 
+            hint: " (ពិត និង ពិត) ",
+            ans: "ពិត",
+            explain: "សំណើទាំងពីរពិតដូចគ្នា នាំឱ្យសំណើផ្សំ ពិត។"
+        },
+        { 
+            q: "« ២ ជាចំនួនគូ » និង « ៣ ជាចំនួនគូ »", 
+            hint: " (ពិត និង មិនពិត) ",
+            ans: "មិនពិត",
+            explain: "ដោយសារ « ៣ ជាចំនួនគូ » គឺមិនពិត នាំឱ្យសំណើផ្សំទាំងមូល មិនពិត។"
+        },
+        { 
+            q: "« ៥ តូចជាង ៣ » និង « ៧ ធំជាង ៤ »", 
+            hint: " (មិនពិត និង ពិត) ",
+            ans: "មិនពិត",
+            explain: "ដោយសារផ្ដើមឡើងដោយ « ៥ តូចជាង ៣ » ដែលមិនពិត នាំឱ្យវា មិនពិត។"
+        },
+        { 
+            q: "« ៩ ជាចំនួនសេស » និង « ១០ ជាចំនួនគូ »", 
+            hint: " (ពិត និង ពិត) ",
+            ans: "ពិត",
+            explain: "សំណើទាំងពីរត្រឹមត្រូវនិងពិតដូចគ្នា នាំឱ្យសំណើផ្សំ ពិត។"
+        },
+        { 
+            q: "« ប្រាសាទអង្គរវត្តស្ថិតនៅខេត្តសៀមរាប » និង « វាស្ថិតនៅប្រទេសថៃ »", 
+            hint: " (ពិត និង មិនពិត) ",
+            ans: "មិនពិត",
+            explain: "អង្គរវត្តស្ថិតនៅកម្ពុជា មិនមែនថៃទេ ដូច្នេះវា មិនពិត។"
+        },
+        { 
+            q: "« សត្វឆ្មាមានស្លាប » និង « សត្វបក្សីមានជើង២ »", 
+            hint: " (មិនពិត និង ពិត) ",
+            ans: "មិនពិត",
+            explain: "ឆ្មាគ្មានស្លាបទេ មានផ្នែកមួយមិនពិត នាំឱ្យលទ្ធផល មិនពិត។"
+        },
+        { 
+            q: "« ៤ គុណនឹង ៥ ស្មើ ២០ » និង « ១០ ចែកនឹង ២ ស្មើ ៥ »", 
+            hint: " (ពិត និង ពិត) ",
+            ans: "ពិត",
+            explain: "ការគណនាទាំងសងខាងត្រឹមត្រូវ (ពិត និង ពិត) នាំឱ្យវា ពិត។"
+        },
+        { 
+            q: "« ភ្នំឱរ៉ាល់ជាភ្នំខ្ពស់ជាងគេនៅកម្ពុជា » និង « វាស្ថិតនៅខេត្តសៀមរាប »", 
+            hint: " (ពិត និង មិនពិត) ",
+            ans: "មិនពិត",
+            explain: "ភ្នំឱរ៉ាល់មិនមែនស្ថិតនៅខេត្តសៀមរាបទេ នាំឱ្យវា មិនពិត។"
+        },
+        { 
+            q: "« មនុស្សត្រូវការអុកស៊ីសែនដើម្បីដកដង្ហើម » និង « ត្រីរស់នៅលើគោក »", 
+            hint: " (ពិត និង មិនពិត) ",
+            ans: "មិនពិត",
+            explain: "ត្រីមិនអាចរស់នៅលើគោកបានទេ មានផ្នែកមិនពិត នាំឱ្យវា មិនពិត។"
+        },
+        { 
+            q: "« លេខ ៩ ជាចំនួនបឋម » និង « លេខ ៦ ជាចំនួនសេស »", 
+            hint: " (មិនពិត និង មិនពិត) ",
+            ans: "មិនពិត",
+            explain: "មិនពិតទាំងសងខាង នាំឱ្យសំណើផ្សំទាំងមូល មិនពិត យ៉ាងច្បាស់ណាស់។"
+        }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    const questionText = document.getElementById('questionText');
+    const hintText = document.getElementById('hintText');
+    const feedback = document.getElementById('feedback');
+    const scoreDisplay = document.getElementById('score');
+    const qCountDisplay = document.getElementById('qCount');
+
+    function loadQuestion() {
+        const q = questions[currentQ];
+        questionText.innerText = q.q;
+        hintText.innerText = "ជំនួយស្មារតី៖ " + q.hint;
+        qCountDisplay.innerText = currentQ + 1;
+    }
+
+    function checkAnswer(userAns) {
+        const q = questions[currentQ];
+        
+        if (userAns === q.ans) {
+            score++;
+            feedback.innerHTML = `<span style="color:var(--success)">✅ ត្រឹមត្រូវ!</span><br><span style="font-size:0.95rem; color:#555;">${q.explain}</span>`;
+        } else {
+            feedback.innerHTML = `<span style="color:var(--danger)">❌ ខុសហើយ! ចម្លើយគឺ៖ "${q.ans}"</span><br><span style="font-size:0.95rem; color:#555;">${q.explain}</span>`;
+        }
+
+        scoreDisplay.innerText = score;
+        currentQ++;
+
+        // ផ្អាកបន្តិចដើម្បីឱ្យសិស្សអានការពន្យល់ រួចប្តូរសំណួរ
+        setTimeout(() => {
+            feedback.innerHTML = "";
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 3500); // ទុកពេល ៣.៥ វិនាទីសម្រាប់អានបំភ្លឺ
+    }
+
+    function showResult() {
+        document.getElementById('game-content').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('finalScore').innerText = score;
+    }
+
+    // ចាប់ផ្តើមដំណើរការហ្គេមដំបូង
+    loadQuestion();
+</script>
+
+</body>
+</html>
