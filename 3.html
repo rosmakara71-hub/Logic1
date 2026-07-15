@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ល្បែងសិក្សាតក្កវិទ្យា - ឈ្នាប់ "និង" & "ឬ"</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --and-color: #8e44ad; /* ពណ៌សម្រាប់ឈ្នាប់ និង */
+            --or-color: #d35400;  /* ពណ៌សម្រាប់ឈ្នាប់ ឬ */
+            --success: #27ae60;
+            --danger: #c0392b;
+            --bg: #eceff1;
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            max-width: 750px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 { color: var(--primary); margin-bottom: 10px; font-size: 1.8rem; }
+        
+        .rule-box {
+            background: #f8f9fa;
+            color: #333;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .rule-box ul {
+            margin: 5px 0 0 0;
+            padding-left: 20px;
+        }
+
+        .score-board { 
+            font-size: 1.1rem; 
+            margin-bottom: 20px; 
+            font-weight: bold;
+            color: #555;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            padding: 35px 20px 25px 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            min-height: 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .operator-tag {
+            position: absolute;
+            top: -15px;
+            color: white;
+            padding: 6px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .tag-and { background: var(--and-color); }
+        .tag-or { background: var(--or-color); }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            line-height: 1.8;
+            font-weight: bold;
+        }
+
+        .hint-text {
+            font-size: 0.95rem;
+            color: #666;
+            margin-top: 15px;
+            background: #f1f2f6;
+            padding: 6px 15px;
+            border-radius: 8px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            font-family: 'Kantumruy Pro', sans-serif;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-true { background-color: var(--success); box-shadow: 0 4px 0 #1e8449; }
+        .btn-false { background-color: var(--danger); box-shadow: 0 4px 0 #922b21; }
+
+        button:hover { transform: translateY(-2px); opacity: 0.95; }
+        button:active { transform: translateY(2px); box-shadow: none; }
+
+        #feedback {
+            margin-top: 25px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            min-height: 60px;
+            line-height: 1.6;
+        }
+
+        .hidden { display: none; }
+        .final-screen { animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="gameBox">
+    <h1>ល្បែងសិក្សាតក្កវិទ្យា៖ សំណើចម្រុះ</h1>
+    
+    <div class="rule-box">
+        💡 <strong>ច្បាប់ត្រូវចាំ៖</strong>
+        <ul>
+            <li><span style="color:var(--and-color); font-weight:bold;">ឈ្នាប់ "និង"</span>៖ <strong>ពិត</strong> លុះត្រាតែពិតទាំងសងខាង។</li>
+            <li><span style="color:var(--or-color); font-weight:bold;">ឈ្នាប់ "ឬ"</span>៖ <strong>មិនពិត</strong> លុះត្រាតែមិនពិតទាំងសងខាង (ឱ្យតែមានពិតម្ខាង គឺពិតហើយ)។</li>
+        </ul>
+    </div>
+
+    <div class="score-board">ពិន្ទុ: <span id="score">0</span> | សំណួរទី: <span id="qCount">1</span>/10</div>
+    
+    <div id="game-content">
+        <div class="question-card" id="qCard">
+            <div class="operator-tag" id="opTag">ប្រភេទឈ្នាប់</div>
+            <div class="question-text" id="questionText">សំណួរកំពុងដំណើរការ...</div>
+            <div class="hint-text" id="hintText">តម្រុយ៖ ពិនិត្យសំណើឆ្វេង និងស្តាំ</div>
+        </div>
+
+        <div class="options-grid">
+            <button class="btn-true" onclick="checkAnswer('ពិត')">ពិត (True)</button>
+            <button class="btn-false" onclick="checkAnswer('មិនពិត')">មិនពិត (False)</button>
+        </div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="resultArea" class="hidden final-screen">
+        <h2>🎉 ការសាកល្បងបានបញ្ចប់!</h2>
+        <p style="font-size: 1.6rem; margin: 20px 0;">ពិន្ទុរបស់អ្នកគឺ: <span id="finalScore" style="color:#2980b9; font-weight:bold;">0</span>/10</p>
+        <button onclick="location.reload()" style="background: var(--primary); padding: 12px 40px; box-shadow: 0 4px 0 #1a252f;">លេងម្តងទៀត</button>
+    </div>
+</div>
+
+<script>
+    // អាងសំណួរចម្រុះ (Mixed AND / OR)
+    const questions = [
+        { 
+            q: "« ១០ ធំជាង ៥ » <strong>និង</strong> « ផែនដីមានរាងមូល »", 
+            op: "និង", hint: " (ពិត និង ពិត) ", ans: "ពិត",
+            explain: "សំណើទាំងពីរពិតទាំងអស់។ ក្នុងឈ្នាប់ 'និង' ពេលពិតទាំង២ លទ្ធផលគឺ ពិត។"
+        },
+        { 
+            q: "« សត្វគោមានស្លាប » <strong>ឬ</strong> « ២ ជាចំនួនគូ »", 
+            op: "ឬ", hint: " (មិនពិត ឬ ពិត) ", ans: "ពិត",
+            explain: "ទោះបីគោគ្មានស្លាប (មិនពិត) តែក៏មានសំណើម្ខាងទៀតពិត។ ក្នុងឈ្នាប់ 'ឬ' គឺវា ពិត។"
+        },
+        { 
+            q: "« ព្រះអាទិត្យរះនៅទិសខាងកើត » <strong>និង</strong> « ១ បូក ១ ស្មើ ៣ »", 
+            op: "និង", hint: " (ពិត និង មិនពិត) ", ans: "មិនពិត",
+            explain: "ដោយសារមានសំណើម្ខាងខុស (១+១=៣) ក្នុងឈ្នាប់ 'និង' ធ្វើឱ្យសំណើផ្សំទាំងមូល មិនពិត។"
+        },
+        { 
+            q: "« ត្រីរស់នៅលើគោក » <strong>ឬ</strong> « មនុស្សអាចហោះបានដោយគ្មានឧបករណ៍ »", 
+            op: "ឬ", hint: " (មិនពិត ឬ មិនពិត) ", ans: "មិនពិត",
+            explain: "សំណើទាំងពីរគឺមិនពិតទាល់តែសោះ។ ក្នុងឈ្នាប់ 'ឬ' បើខុសទាំង២ គឺ មិនពិត។"
+        },
+        { 
+            q: "« ១ សប្តាហ៍មាន ៨ ថ្ងៃ » <strong>និង</strong> « ១ ឆ្នាំមាន ១០ ខែ »", 
+            op: "និង", hint: " (មិនពិត និង មិនពិត) ", ans: "មិនពិត",
+            explain: "ខុសទាំងសងខាងស្រាប់ទៅហើយ ដូច្នេះក្នុងឈ្នាប់ 'និង' វាកាន់តែ មិនពិត។"
+        },
+        { 
+            q: "« ភ្នំពេញជារាជធានីកម្ពុជា » <strong>ឬ</strong> « អង្គរវត្តស្ថិតនៅខេត្តសៀមរាប »", 
+            op: "ឬ", hint: " (ពិត ឬ ពិត) ", ans: "ពិត",
+            explain: "សំណើទាំងពីរពិតព្រមគ្នា។ ក្នុងឈ្នាប់ 'ឬ' គឺពិតប្រាកដណាស់។"
+        },
+        { 
+            q: "« ១០ ចែក ២ ស្មើ ៤ » <strong>និង</strong> « ៥ គុណ ៥ ស្មើ ២៥ »", 
+            op: "និង", hint: " (មិនពិត និង ពិត) ", ans: "មិនពិត",
+            explain: "ដោយសារផ្ដើមមកមានសំណើខុសមួយបាត់ទៅហើយ (១០/២=៤) ទើបធ្វើឱ្យឈ្នាប់ 'និង' នេះ មិនពិត។"
+        },
+        { 
+            q: "« សត្វឆ្មាចាប់កណ្តុរ » <strong>ឬ</strong> « ព្រិលធ្លាក់នៅប្រទេសកម្ពុជា »", 
+            op: "ឬ", hint: " (ពិត ឬ មិនពិត) ", ans: "ពិត",
+            explain: "ទោះកម្ពុជាគ្មានព្រិលធ្លាក់ (មិនពិត) តែឆ្មាពិតជាចាប់កណ្តុរមែន (ពិត)។ ឈ្នាប់ 'ឬ' ឱ្យតម្លៃ ពិត។"
+        },
+        { 
+            q: "« ប្រទេសថៃនៅទ្វីបអាស៊ី » <strong>និង</strong> « ប្រទេសជប៉ុននៅទ្វីបអឺរ៉ុប »", 
+            op: "និង", hint: " (ពិត និង មិនពិត) ", ans: "មិនពិត",
+            explain: "ជប៉ុននៅទ្វីបអាស៊ី មិនមែនអឺរ៉ុបទេ។ ក្នុងឈ្នាប់ 'និង' ឱ្យតែមានខុសមួយ គឺ មិនពិត។"
+        },
+        { 
+            q: "« ៥ ជាចំនួនសេស » <strong>ឬ</strong> « ៦ ជាចំនួនសេស »", 
+            op: "ឬ", hint: " (ពិត ឬ មិនពិត) ", ans: "ពិត",
+            explain: "៦ ជាចំនួនគូ (មិនពិត) ប៉ុន្តែ ៥ ជាចំនួនសេស (ពិត)។ ក្នុងឈ្នាប់ 'ឬ' មានពិតមួយ គឺ ពិត។"
+        }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    const questionText = document.getElementById('questionText');
+    const hintText = document.getElementById('hintText');
+    const feedback = document.getElementById('feedback');
+    const scoreDisplay = document.getElementById('score');
+    const qCountDisplay = document.getElementById('qCount');
+    const opTag = document.getElementById('opTag');
+    const qCard = document.getElementById('qCard');
+
+    function loadQuestion() {
+        const q = questions[currentQ];
+        questionText.innerHTML = q.q;
+        hintText.innerText = "តម្រុយ៖ " + q.hint;
+        qCountDisplay.innerText = currentQ + 1;
+
+        // ប្តូរពណ៌និងអក្សរ Tag ទៅតាមប្រភេទឈ្នាប់
+        if (q.op === "និង") {
+            opTag.innerText = "ឈ្នាប់ « និង »";
+            opTag.className = "operator-tag tag-and";
+            qCard.style.borderColor = "var(--and-color)";
+        } else {
+            opTag.innerText = "ឈ្នាប់ « ឬ »";
+            opTag.className = "operator-tag tag-or";
+            qCard.style.borderColor = "var(--or-color)";
+        }
+    }
+
+    function checkAnswer(userAns) {
+        const q = questions[currentQ];
+        
+        if (userAns === q.ans) {
+            score++;
+            feedback.innerHTML = `<span style="color:var(--success)">✅ ត្រឹមត្រូវ!</span><br><span style="font-size:0.95rem; color:#444;">${q.explain}</span>`;
+        } else {
+            feedback.innerHTML = `<span style="color:var(--danger)">❌ ខុសហើយ! ចម្លើយគឺ៖ "${q.ans}"</span><br><span style="font-size:0.95rem; color:#444;">${q.explain}</span>`;
+        }
+
+        scoreDisplay.innerText = score;
+        currentQ++;
+
+        // រង់ចាំ ៤.៥ វិនាទី ដើម្បីឱ្យសិស្សបានអានការពន្យល់យ៉ាងច្បាស់លាស់
+        setTimeout(() => {
+            feedback.innerHTML = "";
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 4500); 
+    }
+
+    function showResult() {
+        document.getElementById('game-content').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('finalScore').innerText = score;
+    }
+
+    // ចាប់ផ្តើមដំណើរការ
+    loadQuestion();
+</script>
+
+</body>
+</html>
