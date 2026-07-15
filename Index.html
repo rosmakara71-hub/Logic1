@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ល្បែងសិក្សាតក្កវិទ្យា - សំណើ និងតម្លៃភាពពិត</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --secondary: #f39c12;
+            --success: #2ecc71;
+            --danger: #e74c3c;
+            --bg: #f0f4f8;
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 { color: var(--primary); margin-bottom: 10px; }
+        .score-board { font-size: 1.2rem; margin-bottom: 20px; font-weight: bold; }
+
+        .question-card {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .category-tag {
+            position: absolute;
+            top: -15px;
+            background: var(--secondary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            font-family: 'Kantumruy Pro', sans-serif;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            color: white;
+        }
+
+        .btn-prop { background-color: #3498db; }
+        .btn-not-prop { background-color: #95a5a6; }
+        .btn-true { background-color: var(--success); }
+        .btn-false { background-color: var(--danger); }
+
+        button:hover { transform: translateY(-3px); opacity: 0.9; }
+        button:active { transform: translateY(0); }
+
+        #feedback {
+            margin-top: 20px;
+            font-weight: bold;
+            height: 30px;
+        }
+
+        .hidden { display: none; }
+
+        .final-screen {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="gameBox">
+    <h1>ល្បែងសិក្សាតក្កវិទ្យា</h1>
+    <div class="score-board">ពិន្ទុ: <span id="score">0</span> | សំណួរ: <span id="qCount">1</span>/10</div>
+    
+    <div id="game-content">
+        <div class="question-card">
+            <span class="category-tag" id="levelTag">តើនេះជាសំណើដែរឬទេ?</span>
+            <div id="questionText">ភ្នំពេញជារាជធានីនៃប្រទេសកម្ពុជា</div>
+        </div>
+
+        <div class="options-grid" id="options">
+            </div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="resultArea" class="hidden final-screen">
+        <h2>អបអរសាទរ! អ្នកបានបញ្ចប់ល្បែងនេះ។</h2>
+        <p style="font-size: 1.5rem;">ពិន្ទុសរុបរបស់អ្នកគឺ: <span id="finalScore">0</span>/10</p>
+        <button onclick="location.reload()" style="background: var(--primary); padding: 10px 30px;">លេងម្តងទៀត</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        // Level 1: Identify Proposition
+        { q: "តើលោកសុខសប្បាយជាទេ?", type: "identify", ans: "ទេ" },
+        { q: "៥ បូក ៧ ស្មើ ១០", type: "identify", ans: "បាទ" },
+        { q: "ចូរអង្គុយចុះ!", type: "identify", ans: "ទេ" },
+        { q: "ស្អែកមេឃប្រហែលជាភ្លៀង", type: "identify", ans: "ទេ" },
+        { q: "ភ្នំពេញជាទីក្រុងរបស់វៀតណាម", type: "identify", ans: "បាទ" },
+        
+        // Level 2: Truth Values
+        { q: "២ ជាចំនួនសេស", type: "truth", ans: "មិនពិត" },
+        { q: "កម្ពុជាស្ថិតនៅអាស៊ីអាគ្នេយ៍", type: "truth", ans: "ពិត" },
+        { q: "ត្រីកោណមានមុំក្នុងសរុប ១៨០ដឺក្រេ", type: "truth", ans: "ពិត" },
+        { q: "១៥ ធំជាង ៥០", type: "truth", ans: "មិនពិត" },
+        { q: "ព្រះអាទិត្យរះនៅទិសខាងលិច", type: "truth", ans: "មិនពិត" }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    const questionText = document.getElementById('questionText');
+    const levelTag = document.getElementById('levelTag');
+    const optionsGrid = document.getElementById('options');
+    const feedback = document.getElementById('feedback');
+    const scoreDisplay = document.getElementById('score');
+    const qCountDisplay = document.getElementById('qCount');
+
+    function loadQuestion() {
+        const q = questions[currentQ];
+        questionText.innerText = q.q;
+        qCountDisplay.innerText = currentQ + 1;
+        optionsGrid.innerHTML = '';
+
+        if (q.type === "identify") {
+            levelTag.innerText = "តើល្បះនេះជាសំណើដែរឬទេ?";
+            createButton("សំណើ (បាទ)", "btn-prop", "បាទ");
+            createButton("មិនមែនសំណើ (ទេ)", "btn-not-prop", "ទេ");
+        } else {
+            levelTag.innerText = "តើតម្លៃភាពពិតនៃសំណើនេះគឺអ្វី?";
+            createButton("ពិត (True)", "btn-true", "ពិត");
+            createButton("មិនពិត (False)", "btn-false", "មិនពិត");
+        }
+    }
+
+    function createButton(text, className, val) {
+        const btn = document.createElement('button');
+        btn.innerText = text;
+        btn.className = className;
+        btn.onclick = () => checkAnswer(val);
+        optionsGrid.appendChild(btn);
+    }
+
+    function checkAnswer(userAns) {
+        const correctAns = questions[currentQ].ans;
+        
+        if (userAns === correctAns) {
+            score++;
+            feedback.innerText = "✅ ត្រឹមត្រូវ!";
+            feedback.style.color = "var(--success)";
+        } else {
+            feedback.innerText = "❌ ខុសហើយ! ចម្លើយគឺ: " + correctAns;
+            feedback.style.color = "var(--danger)";
+        }
+
+        scoreDisplay.innerText = score;
+        currentQ++;
+
+        setTimeout(() => {
+            feedback.innerText = "";
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 1500);
+    }
+
+    function showResult() {
+        document.getElementById('game-content').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('finalScore').innerText = score;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
