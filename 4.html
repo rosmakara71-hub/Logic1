@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ល្បែងសិក្សាតក្កវិទ្យា - ឈ្នាប់ "មិន"</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --not-color: #16a085; /* ពណ៌សម្រាប់ឈ្នាប់ មិន */
+            --success: #27ae60;
+            --danger: #c0392b;
+            --bg: #e8f8f5;
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            border-top: 8px solid var(--not-color);
+        }
+
+        h1 { color: var(--primary); margin-bottom: 10px; font-size: 1.8rem; }
+        
+        .rule-box {
+            background: #e4f1fe;
+            color: #1f3a93;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--not-color);
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .score-board { 
+            font-size: 1.1rem; 
+            margin-bottom: 20px; 
+            font-weight: bold;
+            color: #555;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 2px solid #d1f2eb;
+            padding: 35px 20px 25px 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            min-height: 130px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(22, 160, 133, 0.1);
+        }
+
+        .operator-tag {
+            position: absolute;
+            top: -15px;
+            background: var(--not-color);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            line-height: 1.8;
+            font-weight: bold;
+        }
+
+        .hint-text {
+            font-size: 0.95rem;
+            color: #666;
+            margin-top: 15px;
+            background: #f4f6f7;
+            padding: 6px 15px;
+            border-radius: 8px;
+            border: 1px dashed #bdc3c7;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            font-family: 'Kantumruy Pro', sans-serif;
+            padding: 15px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-true { background-color: var(--success); box-shadow: 0 4px 0 #1e8449; }
+        .btn-false { background-color: var(--danger); box-shadow: 0 4px 0 #922b21; }
+
+        button:hover { transform: translateY(-2px); opacity: 0.95; }
+        button:active { transform: translateY(2px); box-shadow: none; }
+
+        #feedback {
+            margin-top: 25px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            min-height: 60px;
+            line-height: 1.6;
+        }
+
+        .hidden { display: none; }
+        .final-screen { animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="gameBox">
+    <h1>ល្បែងសិក្សា៖ ឈ្នាប់ "មិន" (&not;)</h1>
+    
+    <div class="rule-box">
+        💡 <strong>ច្បាប់ត្រូវចាំ៖</strong> ឈ្នាប់ <strong>"មិន"</strong> មានមុខងារបញ្ច្រាសតម្លៃភាពពិត។
+        <br>👉 បើសំណើដើម <span style="color:var(--success); font-weight:bold;">ពិត</span> នោះពេលបន្ថែមពាក្យ "មិន/មិនមែន" វានឹងទៅជា <span style="color:var(--danger); font-weight:bold;">មិនពិត</span>។
+        <br>👉 បើសំណើដើម <span style="color:var(--danger); font-weight:bold;">មិនពិត</span> នោះពេលបន្ថែមពាក្យ "មិន/មិនមែន" វានឹងទៅជា <span style="color:var(--success); font-weight:bold;">ពិត</span>។
+    </div>
+
+    <div class="score-board">ពិន្ទុ: <span id="score">0</span> | សំណួរទី: <span id="qCount">1</span>/10</div>
+    
+    <div id="game-content">
+        <div class="question-card" id="qCard">
+            <div class="operator-tag">ឈ្នាប់ « មិន »</div>
+            <div class="question-text" id="questionText">សំណួរកំពុងដំណើរការ...</div>
+            <div class="hint-text" id="hintText">តម្រុយ៖ ស្វែងរកតម្លៃភាពពិតនៃសំណើដើមសិន រួចចាំត្រឡប់វា</div>
+        </div>
+
+        <div class="options-grid">
+            <button class="btn-true" onclick="checkAnswer('ពិត')">ពិត (True)</button>
+            <button class="btn-false" onclick="checkAnswer('មិនពិត')">មិនពិត (False)</button>
+        </div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="resultArea" class="hidden final-screen">
+        <h2>🎉 ការសាកល្បងបានបញ្ចប់!</h2>
+        <p style="font-size: 1.6rem; margin: 20px 0;">ពិន្ទុរបស់អ្នកគឺ: <span id="finalScore" style="color:var(--not-color); font-weight:bold;">0</span>/10</p>
+        <button onclick="location.reload()" style="background: var(--not-color); padding: 12px 40px; box-shadow: 0 4px 0 #117864;">លេងម្តងទៀត</button>
+    </div>
+</div>
+
+<script>
+    // អាងសំណួរអំពីឈ្នាប់ "មិន" (Negation)
+    const questions = [
+        { 
+            q: "« <strong>មិនមែន</strong> ភ្នំពេញជារាជធានីនៃប្រទេសកម្ពុជាទេ »", 
+            baseTruth: "ពិត", 
+            ans: "មិនពិត",
+            explain: "សំណើដើម «ភ្នំពេញជារាជធានី» គឺ <strong>ពិត</strong>។ ដូច្នេះការបដិសេធវា គឺ <strong>មិនពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> ២ ជាចំនួនសេសទេ »", 
+            baseTruth: "មិនពិត", 
+            ans: "ពិត",
+            explain: "សំណើដើម «២ ជាចំនួនសេស» គឺ <strong>មិនពិត</strong>។ ដូច្នេះការបដិសេធវា គឺ <strong>ពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> ព្រះអាទិត្យរះនៅទិសខាងលិចទេ »", 
+            baseTruth: "មិនពិត", 
+            ans: "ពិត",
+            explain: "សំណើដើមគឺ <strong>មិនពិត</strong> ស្រាប់ទៅហើយ។ ការបដិសេធរបស់មិនពិត គឺ <strong>ពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> ៥ គុណនឹង ២ ស្មើ ១០ ទេ »", 
+            baseTruth: "ពិត", 
+            ans: "មិនពិត",
+            explain: "៥ គុណ ២ ស្មើ ១០ ពិតប្រាកដណាស់។ ពេលនិយាយថា «មិនមែនទេ» គឺវា <strong>មិនពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> សត្វគោមានជើងពីរទេ »", 
+            baseTruth: "មិនពិត", 
+            ans: "ពិត",
+            explain: "សំណើដើម «គោមានជើងពីរ» គឺខុស (មិនពិត)។ ពេលដាក់ពាក្យបដិសេធ វាក្លាយជា <strong>ពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> ១ សប្តាហ៍មាន ៧ ថ្ងៃទេ »", 
+            baseTruth: "ពិត", 
+            ans: "មិនពិត",
+            explain: "១ សប្តាហ៍មាន ៧ ថ្ងៃជារឿង <strong>ពិត</strong>។ ការដែលបដិសេធរឿងនេះ គឺ <strong>មិនពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> ប្រាសាទអង្គរវត្តស្ថិតនៅប្រទេសថៃទេ »", 
+            baseTruth: "មិនពិត", 
+            ans: "ពិត",
+            explain: "សំណើដើមគឺ <strong>មិនពិត</strong>។ ការបដិសេធថាវាមិនមែននៅប្រទេសថៃ គឺជាការនិយាយ <strong>ពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> ត្រីកោណមានផលបូករង្វាស់មុំក្នុង ១៨០ ដឺក្រេទេ »", 
+            baseTruth: "ពិត", 
+            ans: "មិនពិត",
+            explain: "ទ្រឹស្តីនេះ <strong>ពិត</strong>។ ដូច្នេះការបដិសេធវា គឺ <strong>មិនពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> ទឹកកកក្តៅទេ »", 
+            baseTruth: "មិនពិត", 
+            ans: "ពិត",
+            explain: "ទឹកកកក្តៅគឺ <strong>មិនពិត</strong>។ ពេលអ្នកនិយាយថា «មិនមែនទឹកកកក្តៅទេ» គឺអ្នកនិយាយ <strong>ពិត</strong>។"
+        },
+        { 
+            q: "« <strong>មិនមែន</strong> ផែនដីវិលជុំវិញព្រះអាទិត្យទេ »", 
+            baseTruth: "ពិត", 
+            ans: "មិនពិត",
+            explain: "សំណើដើមគឺ <strong>ពិត</strong>។ ការបដិសេធការពិតនេះ ធ្វើឱ្យសំណើទាំងមូល <strong>មិនពិត</strong>។"
+        }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    const questionText = document.getElementById('questionText');
+    const hintText = document.getElementById('hintText');
+    const feedback = document.getElementById('feedback');
+    const scoreDisplay = document.getElementById('score');
+    const qCountDisplay = document.getElementById('qCount');
+
+    function loadQuestion() {
+        const q = questions[currentQ];
+        questionText.innerHTML = q.q;
+        hintText.innerHTML = `តម្រុយ៖ សំណើដើម (មុនដាក់ "មិនមែន") គឺ <strong>${q.baseTruth}</strong>`;
+        qCountDisplay.innerText = currentQ + 1;
+    }
+
+    function checkAnswer(userAns) {
+        const q = questions[currentQ];
+        
+        if (userAns === q.ans) {
+            score++;
+            feedback.innerHTML = `<span style="color:var(--success)">✅ ត្រឹមត្រូវ!</span><br><span style="font-size:0.95rem; color:#444;">${q.explain}</span>`;
+        } else {
+            feedback.innerHTML = `<span style="color:var(--danger)">❌ ខុសហើយ! ចម្លើយគឺ៖ "${q.ans}"</span><br><span style="font-size:0.95rem; color:#444;">${q.explain}</span>`;
+        }
+
+        scoreDisplay.innerText = score;
+        currentQ++;
+
+        // រង់ចាំ ៤ វិនាទី ដើម្បីឱ្យសិស្សបានអានការពន្យល់
+        setTimeout(() => {
+            feedback.innerHTML = "";
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 4000); 
+    }
+
+    function showResult() {
+        document.getElementById('game-content').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('finalScore').innerText = score;
+    }
+
+    // ចាប់ផ្តើមដំណើរការហ្គេម
+    loadQuestion();
+</script>
+
+</body>
+</html>
