@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ល្បែងសិក្សាតក្កវិទ្យា - តារាងតម្លៃភាពពិត (1 និង 0)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2b3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --table-header: #ecf0f1;
+            --bg: #f4f7f6;
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 750px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            border-top: 8px solid var(--accent);
+        }
+
+        h1 { color: var(--primary); margin-bottom: 10px; font-size: 1.8rem; }
+        
+        .rule-box {
+            background: #eaf2f8;
+            color: #154360;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            border: 1px solid #d4e6f1;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .rule-box ul { margin: 5px 0 0 0; padding-left: 20px; }
+
+        .score-board { 
+            font-size: 1.15rem; 
+            margin-bottom: 20px; 
+            font-weight: bold;
+            color: #555;
+        }
+
+        /* រចនាប័ទ្មតារាងតម្លៃភាពពិត */
+        .truth-table-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            max-width: 400px;
+            background: #fff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            border: 2px solid #bdc3c7;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        th {
+            background-color: var(--table-header);
+            color: var(--primary);
+            font-size: 1.4rem;
+        }
+
+        .val-t { color: var(--success); }
+        .val-f { color: var(--danger); }
+        
+        .question-mark {
+            background-color: #f9e79f;
+            color: #d35400;
+            font-size: 1.8rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            font-family: 'Kantumruy Pro', sans-serif;
+            padding: 15px;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-true { background-color: var(--success); box-shadow: 0 4px 0 #1e8449; }
+        .btn-false { background-color: var(--danger); box-shadow: 0 4px 0 #922b21; }
+
+        button:hover { transform: translateY(-2px); opacity: 0.95; }
+        button:active { transform: translateY(2px); box-shadow: none; }
+
+        #feedback {
+            margin-top: 25px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            min-height: 60px;
+            line-height: 1.6;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="gameBox">
+    <h1>ល្បែងទាយ៖ តារាងតម្លៃភាពពិត (១ និង ០)</h1>
+    
+    <div class="rule-box">
+        💡 <strong>រំលឹកច្បាប់ (1 = ពិត, 0 = មិនពិត)៖</strong>
+        <ul>
+            <li><strong>និង (&and;)</strong> ៖ មានតម្លៃ 1 លុះត្រាតែ 1 និង 1។</li>
+            <li><strong>ឬ (&or;)</strong> ៖ មានតម្លៃ 0 លុះត្រាតែ 0 និង 0។</li>
+            <li><strong>នាំឱ្យ (&rArr;)</strong> ៖ មានតម្លៃ 0 លុះត្រាតែ 1 នាំឱ្យ 0។</li>
+            <li><strong>សមមូល (&hArr;)</strong> ៖ មានតម្លៃ 1 លុះត្រាតែតម្លៃទាំង២ដូចគ្នា (1,1 ឬ 0,0)។</li>
+            <li><strong>មិន (&not;)</strong> ៖ ត្រឡប់តម្លៃពី 1 ទៅ 0 ឬពី 0 ទៅ 1។</li>
+        </ul>
+    </div>
+
+    <div class="score-board">ពិន្ទុ: <span id="score">0</span> | លំហាត់ទី: <span id="qCount">1</span>/10</div>
+    
+    <div id="game-content">
+        <div class="truth-table-container">
+            <table id="logicTable">
+                <tr>
+                    <th>p</th>
+                    <th id="col-q">q</th>
+                    <th id="col-result">p &and; q</th>
+                </tr>
+                <tr>
+                    <td id="val-p">1</td>
+                    <td id="val-q">0</td>
+                    <td class="question-mark">?</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="options-grid">
+            <button class="btn-true" onclick="checkAnswer('1')">ពិត (1)</button>
+            <button class="btn-false" onclick="checkAnswer('0')">មិនពិត (0)</button>
+        </div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="resultArea" class="hidden final-screen">
+        <h2>🎉 អ្នកបានបញ្ចប់ការសាកល្បងដោយជោគជ័យ!</h2>
+        <p style="font-size: 1.6rem; margin: 20px 0;">ពិន្ទុរបស់អ្នកគឺ: <span id="finalScore" style="color:var(--accent); font-weight:bold;">0</span>/10</p>
+        <button onclick="location.reload()" style="background: var(--accent); padding: 12px 40px; box-shadow: 0 4px 0 #21618c;">លេងម្តងទៀត</button>
+    </div>
+</div>
+
+<script>
+    // អាងលំហាត់តារាងតម្លៃភាពពិត ដោយប្រើ 1 និង 0
+    const questions = [
+        { symbol: "p &and; q", p: "1", q: "1", ans: "1", exp: "1 &and; 1 ផ្តល់តម្លៃ 1 ព្រោះវាពិតទាំងសងខាង។" },
+        { symbol: "p &and; q", p: "1", q: "0", ans: "0", exp: "1 &and; 0 ផ្តល់តម្លៃ 0 ព្រោះមានតម្លៃ 0 (មិនពិត) មួយ។" },
+        { symbol: "p &or; q", p: "0", q: "0", ans: "0", exp: "0 &or; 0 ផ្តល់តម្លៃ 0 ព្រោះវាជាតម្លៃមិនពិតទាំងសងខាង។" },
+        { symbol: "p &or; q", p: "0", q: "1", ans: "1", exp: "0 &or; 1 ផ្តល់តម្លៃ 1 ព្រោះមានតម្លៃ 1 មួយ។" },
+        { symbol: "&not;p", p: "0", q: null, ans: "1", exp: "បដិសេធរបស់ 0 គឺ 1។" },
+        { symbol: "p &rArr; q", p: "1", q: "0", ans: "0", exp: "នេះជាករណីពិសេស! 1 នាំឱ្យ 0 លទ្ធផលគឺ 0 (មិនពិត)។" },
+        { symbol: "p &rArr; q", p: "0", q: "1", ans: "1", exp: "0 នាំឱ្យ 1 គឺផ្តល់តម្លៃ 1 (ពិត) ដដែល។" },
+        { symbol: "p &hArr; q", p: "1", q: "1", ans: "1", exp: "តម្លៃដូចគ្នា (1 និង 1) ផ្តល់តម្លៃ 1 ក្នុងឈ្នាប់សមមូល។" },
+        { symbol: "p &hArr; q", p: "1", q: "0", ans: "0", exp: "តម្លៃខុសគ្នា (1 និង 0) ផ្តល់តម្លៃ 0 ក្នុងឈ្នាប់សមមូល។" },
+        { symbol: "&not;p", p: "1", q: null, ans: "0", exp: "បដិសេធរបស់ 1 គឺ 0។" }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+
+    const colQ = document.getElementById('col-q');
+    const valP = document.getElementById('val-p');
+    const valQ = document.getElementById('val-q');
+    const colResult = document.getElementById('col-result');
+    const feedback = document.getElementById('feedback');
+    const scoreDisplay = document.getElementById('score');
+    const qCountDisplay = document.getElementById('qCount');
+
+    function loadQuestion() {
+        const q = questions[currentQ];
+        
+        // កំណត់តម្លៃ p
+        valP.innerHTML = q.p;
+        valP.className = q.p === '1' ? 'val-t' : 'val-f';
+
+        // ពិនិត្យមើលបើជាឈ្នាប់ "មិន" (Unary operator) លាក់កូឡោន q
+        if (q.q === null) {
+            colQ.style.display = 'none';
+            valQ.style.display = 'none';
+        } else {
+            colQ.style.display = 'table-cell';
+            valQ.style.display = 'table-cell';
+            valQ.innerHTML = q.q;
+            valQ.className = q.q === '1' ? 'val-t' : 'val-f';
+        }
+
+        colResult.innerHTML = q.symbol;
+        qCountDisplay.innerText = currentQ + 1;
+    }
+
+    function checkAnswer(userAns) {
+        const q = questions[currentQ];
+        
+        if (userAns === q.ans) {
+            score++;
+            feedback.innerHTML = `<span style="color:var(--success)">✅ ត្រឹមត្រូវ!</span><br><span style="font-size:1rem; color:#444;">${q.exp}</span>`;
+        } else {
+            feedback.innerHTML = `<span style="color:var(--danger)">❌ ខុសហើយ! ចម្លើយគឺ៖ <strong>${q.ans}</strong></span><br><span style="font-size:1rem; color:#444;">${q.exp}</span>`;
+        }
+
+        scoreDisplay.innerText = score;
+        currentQ++;
+
+        // ទុកពេលឱ្យអានការពន្យល់ ៣.៥ វិនាទី
+        setTimeout(() => {
+            feedback.innerHTML = "";
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 3500); 
+    }
+
+    function showResult() {
+        document.getElementById('game-content').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('finalScore').innerText = score;
+    }
+
+    // ចាប់ផ្តើម
+    loadQuestion();
+</script>
+
+</body>
+</html>
