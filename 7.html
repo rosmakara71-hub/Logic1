@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ល្បែងគណិតវិទ្យា - សមីការ (MathJax ដំណើរការពេញលេញ)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- ភ្ជាប់បណ្ណាល័យ MathJax -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e67e22;
+            --btn-bg: #34495e;
+            --btn-hover: #1a252f;
+            --success: #27ae60;
+            --danger: #c0392b;
+            --bg: #fdf2e9;
+        }
+
+        body {
+            font-family: 'Kantumruy Pro', sans-serif;
+            background-color: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 15px;
+        }
+
+        .game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            border-top: 8px solid var(--accent);
+        }
+
+        h1 { color: var(--primary); margin-bottom: 5px; font-size: 1.8rem; }
+        
+        .rule-box {
+            background: #fef5e7;
+            color: #a04000;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin-bottom: 25px;
+            border: 1px solid #fad7a1;
+            text-align: left;
+            line-height: 1.8;
+        }
+
+        .rule-box ul { margin: 5px 0 0 0; padding-left: 20px; }
+
+        .score-board { 
+            font-size: 1.15rem; 
+            margin-bottom: 20px; 
+            font-weight: bold;
+            color: #555;
+            background: #f2f3f4;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 2px solid #e5e8e8;
+            padding: 35px 20px 25px 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .level-tag {
+            position: absolute;
+            top: -15px;
+            background: var(--accent);
+            color: white;
+            padding: 6px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(230, 126, 34, 0.2);
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            line-height: 1.8;
+            font-weight: bold;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            font-family: 'Kantumruy Pro', sans-serif;
+            padding: 15px;
+            font-size: 1.2rem;
+            background-color: var(--btn-bg);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: white;
+            box-shadow: 0 4px 0 #1a252f;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .option-btn:hover { background-color: var(--btn-hover); transform: translateY(-2px); }
+        .option-btn:active { transform: translateY(2px); box-shadow: none; }
+        
+        .btn-correct { background-color: var(--success) !important; box-shadow: 0 4px 0 #1e8449 !important; }
+        .btn-wrong { background-color: var(--danger) !important; box-shadow: 0 4px 0 #922b21 !important; }
+
+        #feedback {
+            margin-top: 25px;
+            font-size: 1.15rem;
+            font-weight: bold;
+            min-height: 70px;
+            line-height: 1.8;
+        }
+
+        .hidden { display: none; }
+        .final-screen { animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container" id="gameBox">
+    <h1>ល្បែងគណិតវិទ្យា៖ សមីការ</h1>
+    
+    <div class="rule-box">
+        💡 <strong>រូបមន្តត្រូវចាំ៖</strong>
+        <ul>
+            <li><strong>សមីការដឺក្រេទី១:</strong> \( ax + b = 0 \Rightarrow x = -\frac{b}{a} \)</li>
+            <li><strong>ឌីស្គ្រីមីណង់ (\( \Delta \)):</strong> \( \Delta = b^2 - 4ac \)</li>
+            <li><strong>ទ្រឹស្តីបទវីយ៉ែត:</strong> ផលបូករឹស \( x_1 + x_2 = -\frac{b}{a} \) , ផលគុណរឹស \( x_1 \cdot x_2 = \frac{c}{a} \)</li>
+        </ul>
+    </div>
+
+    <div class="score-board">ពិន្ទុ: <span id="score">0</span> | លំហាត់ទី: <span id="qCount">1</span>/10</div>
+    
+    <div id="game-content">
+        <div class="question-card" id="qCard">
+            <div class="level-tag" id="levelTag">កម្រិត</div>
+            <div class="question-text" id="questionText">សំណួរកំពុងដំណើរការ...</div>
+        </div>
+
+        <div class="options-grid" id="optionsContainer"></div>
+    </div>
+
+    <div id="feedback"></div>
+
+    <div id="resultArea" class="hidden final-screen">
+        <h2>🎉 ការសាកល្បងបានបញ្ចប់!</h2>
+        <p style="font-size: 1.6rem; margin: 20px 0;">ពិន្ទុរបស់អ្នកគឺ: <span id="finalScore" style="color:var(--accent); font-weight:bold;">0</span>/10</p>
+        <button class="option-btn" onclick="location.reload()" style="background-color: var(--accent); box-shadow: 0 4px 0 #b35900; padding: 12px 40px;">លេងម្តងទៀត</button>
+    </div>
+</div>
+
+<script>
+    // បានបន្ថែមសញ្ញា \ ទ្វេដង (Double Backslash) ដើម្បីកុំឱ្យ JS លុបចោល
+    let questions = [
+        { 
+            type: "សមីការដឺក្រេទី១",
+            q: "តើ \\( x \\) មានតម្លៃប៉ុន្មាន បើ \\( 2x - 6 = 0 \\)?", 
+            options: ["\\( x = 2 \\)", "\\( x = 3 \\)", "\\( x = 4 \\)", "\\( x = -3 \\)"], ans: 1, 
+            exp: "បោះ -6 ទៅអង្គទី២ បាន \\( 2x = 6 \\Rightarrow x = \\frac{6}{2} = 3 \\)"
+        },
+        { 
+            type: "សមីការដឺក្រេទី២",
+            q: "ដោះស្រាយសមីការ \\( x^2 - 9 = 0 \\)", 
+            options: ["\\( x = 3 \\)", "\\( x = -3 \\)", "\\( x = \\pm 3 \\)", "គ្មានឫស"], ans: 2, 
+            exp: "\\( x^2 = 9 \\Rightarrow x = \\pm 3 \\)"
+        },
+        { 
+            type: "ការរក \\( \\Delta \\)",
+            q: "តើឌីស្គ្រីមីណង់ (\\( \\Delta \\)) នៃសមីការ \\( x^2 - 4x + 3 = 0 \\) ស្មើប៉ុន្មាន?", 
+            options: ["\\( \\Delta = 4 \\)", "\\( \\Delta = -4 \\)", "\\( \\Delta = 0 \\)", "\\( \\Delta = 2 \\)"], ans: 0, 
+            exp: "\\( \\Delta = b^2 - 4ac = (-4)^2 - 4(1)(3) = 16 - 12 = 4 \\)"
+        },
+        { 
+            type: "ទ្រឹស្តីបទវីយ៉ែត",
+            q: "តើផលបូករឹស (\\( x_1 + x_2 \\)) នៃសមីការ \\( x^2 - 5x + 6 = 0 \\) ស្មើប៉ុន្មាន?", 
+            options: ["\\( -5 \\)", "\\( 6 \\)", "\\( -6 \\)", "\\( 5 \\)"], ans: 3, 
+            exp: "តាមវីយ៉ែត \\( x_1 + x_2 = -\\frac{b}{a} = -\\frac{(-5)}{1} = 5 \\)"
+        },
+        { 
+            type: "សមីការដឺក្រេទី១",
+            q: "រកឫសនៃសមីការ \\( 3x + 5 = 11 \\)", 
+            options: ["\\( x = 1 \\)", "\\( x = 2 \\)", "\\( x = 3 \\)", "\\( x = 4 \\)"], ans: 1, 
+            exp: "\\( 3x = 11 - 5 \\Rightarrow 3x = 6 \\Rightarrow x = 2 \\)"
+        },
+        { 
+            type: "ប្រភេទឫស",
+            q: "សមីការ \\( x^2 + 2x + 1 = 0 \\) មានឫសបែបណា?", 
+            options: ["ឫសឌុប \\( x = -1 \\)", "ឫសពីរផ្សេងគ្នា", "គ្មានឫស", "ឫសឌុប \\( x = 1 \\)"], ans: 0, 
+            exp: "វាចូលរាង \\( (x+1)^2 = 0 \\) ដូច្នេះវាមានឫសឌុប \\( x = -1 \\)"
+        },
+        { 
+            type: "ស្វែងរកអថេរ",
+            q: "បើ \\( x = 2 \\) ជាឫសមួយនៃសមីការ \\( x^2 - kx + 6 = 0 \\) តើ \\( k \\) ស្មើប៉ុន្មាន?", 
+            options: ["\\( k = 4 \\)", "\\( k = -5 \\)", "\\( k = 5 \\)", "\\( k = 6 \\)"], ans: 2, 
+            exp: "ជំនួស \\( x=2 \\) ចូល៖ \\( (2)^2 - k(2) + 6 = 0 \\Rightarrow 4 - 2k + 6 = 0 \\Rightarrow 2k = 10 \\Rightarrow k = 5 \\)"
+        },
+        { 
+            type: "ចំណេះដឹងទូទៅ",
+            q: "តើសមីការមួយណាជា <strong>សមីការដឺក្រេទី២</strong>?", 
+            options: ["\\( 2x + 3 = 0 \\)", "\\( x^3 - 1 = 0 \\)", "\\( \\frac{1}{x} = 2 \\)", "\\( x^2 - 5x = 0 \\)"], ans: 3, 
+            exp: "សមីការដឺក្រេទី២ ត្រូវមានអថេរ \\( x \\) ស្វ័យគុណខ្ពស់បំផុតគឺ ២ (\\( x^2 \\))"
+        },
+        { 
+            type: "សមីការដឺក្រេទី១",
+            q: "ដោះស្រាយសមីការ \\( 2(x - 3) = x + 1 \\)", 
+            options: ["\\( x = 5 \\)", "\\( x = 6 \\)", "\\( x = 7 \\)", "\\( x = 8 \\)"], ans: 2, 
+            exp: "ពន្លាត: \\( 2x - 6 = x + 1 \\Rightarrow 2x - x = 1 + 6 \\Rightarrow x = 7 \\)"
+        },
+        { 
+            type: "ប្រភេទឫស",
+            q: "បើសមីការដឺក្រេទី២ មាន \\( \\Delta < 0 \\) តើសមីការនេះមានលក្ខណៈយ៉ាងម៉េច?", 
+            options: ["មានឫសពីរផ្សេងគ្នា", "មានឫសឌុប", "គ្មានឫសក្នុង \\( \\mathbb{R} \\)", "មានឫសមួយ"], ans: 2, 
+            exp: "បើ \\( \\Delta < 0 \\) នោះសមីការគ្មានឫសនៅក្នុងសំណុំចំនួនពិត \\( (\\mathbb{R}) \\) ទេ"
+        }
+    ];
+
+    // អនុគមន៍សម្រាប់ច្របល់ (Shuffle) Array
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    // ច្របល់លំដាប់សំណួរ
+    shuffleArray(questions);
+
+    let currentQ = 0;
+    let score = 0;
+    let isAnswering = false;
+
+    const questionText = document.getElementById('questionText');
+    const levelTag = document.getElementById('levelTag');
+    const optionsContainer = document.getElementById('optionsContainer');
+    const feedback = document.getElementById('feedback');
+    const scoreDisplay = document.getElementById('score');
+    const qCountDisplay = document.getElementById('qCount');
+
+    function loadQuestion() {
+        isAnswering = false;
+        const q = questions[currentQ];
+        questionText.innerHTML = q.q;
+        levelTag.innerText = q.type;
+        qCountDisplay.innerText = currentQ + 1;
+        
+        // រៀបចំនិងច្របល់ជម្រើស
+        let optionsObj = q.options.map((opt, index) => {
+            return { text: opt, isCorrect: index === q.ans };
+        });
+        shuffleArray(optionsObj);
+
+        optionsContainer.innerHTML = '';
+        optionsObj.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerHTML = opt.text;
+            btn.onclick = () => checkAnswer(opt.isCorrect, btn, optionsObj);
+            optionsContainer.appendChild(btn);
+        });
+
+        // បញ្ជាឱ្យ MathJax រៀបចំរូបមន្ត
+        if (window.MathJax) {
+            MathJax.typesetPromise([document.getElementById('gameBox')]).catch((err) => console.log(err));
+        }
+    }
+
+    function checkAnswer(isCorrect, btnElement, optionsObj) {
+        if (isAnswering) return; 
+        isAnswering = true;
+        
+        const q = questions[currentQ];
+        const allBtns = optionsContainer.children;
+        
+        // បង្ហាញពណ៌បៃតងលើចម្លើយដែលត្រូវ
+        let correctIndex = optionsObj.findIndex(o => o.isCorrect);
+        allBtns[correctIndex].classList.add('btn-correct');
+
+        if (isCorrect) {
+            score++;
+            feedback.innerHTML = `<span style="color:var(--success)">✅ ត្រឹមត្រូវ!</span><br><span style="font-size:1.1rem; color:#444;">${q.exp}</span>`;
+        } else {
+            btnElement.classList.add('btn-wrong');
+            feedback.innerHTML = `<span style="color:var(--danger)">❌ ខុសហើយ!</span><br><span style="font-size:1.1rem; color:#444;">${q.exp}</span>`;
+        }
+
+        scoreDisplay.innerText = score;
+        currentQ++;
+
+        // បញ្ជាឱ្យ MathJax រៀបចំរូបមន្តក្នុងប្រអប់ពន្យល់
+        if (window.MathJax) {
+            MathJax.typesetPromise([feedback]).catch((err) => console.log(err));
+        }
+
+        setTimeout(() => {
+            feedback.innerHTML = "";
+            if (currentQ < questions.length) {
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }, 4500); 
+    }
+
+    function showResult() {
+        document.getElementById('game-content').classList.add('hidden');
+        document.getElementById('resultArea').classList.remove('hidden');
+        document.getElementById('finalScore').innerText = score;
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
